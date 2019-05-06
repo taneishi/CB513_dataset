@@ -77,9 +77,9 @@ class Encoder(nn.Module):
             EncoderLayer(d_model, d_inner, n_head, d_k, d_v, dropout=dropout)
             for _ in range(n_layers)])
 
-    # def forward(self, src_seq, src_pos, return_attns=False):
-    def forward(self, src_seq, src_sp, src_pos, return_attns=False):
-        src_sp = src_sp.transpose(1, 2)
+    def forward(self, src_seq, src_pos, return_attns=False):
+    #def forward(self, src_seq, src_sp, src_pos, return_attns=False):
+        #src_sp = src_sp.transpose(1, 2)
 
         enc_slf_attn_list = []
 
@@ -96,8 +96,8 @@ class Encoder(nn.Module):
         # c = self.linear(src_sp)
         # print(f'a : {a.shape}')
         # print(f'b : {b.shape}')
-        # enc_output = self.src_word_emb(src_seq) + self.position_enc(src_pos)
-        enc_output = self.src_word_emb(src_seq) + self.linear(src_sp) + self.position_enc(src_pos)
+        enc_output = self.src_word_emb(src_seq) + self.position_enc(src_pos)
+        #enc_output = self.src_word_emb(src_seq) + self.linear(src_sp) + self.position_enc(src_pos)
 
         for enc_layer in self.layer_stack:
             enc_output, enc_slf_attn = enc_layer(
@@ -214,13 +214,13 @@ class Transformer(nn.Module):
             "To share word embedding table, the vocabulary size of src/tgt shall be the same."
             self.encoder.src_word_emb.weight = self.decoder.tgt_word_emb.weight
 
-    # def forward(self, src_seq, src_pos, tgt_seq, tgt_pos):
-    def forward(self, src_seq, src_sp, src_pos, tgt_seq, tgt_pos):
+    def forward(self, src_seq, src_pos, tgt_seq, tgt_pos):
+    #def forward(self, src_seq, src_sp, src_pos, tgt_seq, tgt_pos):
 
         tgt_seq, tgt_pos = tgt_seq[:, :-1], tgt_pos[:, :-1]
 
-        # enc_output, *_ = self.encoder(src_seq, src_pos)
-        enc_output, *_ = self.encoder(src_seq, src_sp, src_pos)
+        enc_output, *_ = self.encoder(src_seq, src_pos)
+        #enc_output, *_ = self.encoder(src_seq, src_sp, src_pos)
         dec_output, *_ = self.decoder(tgt_seq, tgt_pos, src_seq, enc_output)
         seq_logit = self.tgt_word_prj(dec_output) * self.x_logit_scale
 

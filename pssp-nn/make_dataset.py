@@ -11,8 +11,8 @@ TRAIN_PATH = '../pssp-data/cullpdb+profile_6133_filtered.npy.gz'
 TEST_PATH = '../pssp-data/cb513+profile_split1.npy.gz'
 TRAIN_DATASET_PATH = '../pssp-data/train.npz'
 TEST_DATASET_PATH = '../pssp-data/test.npz'
-TRAIN_URL = "http://www.princeton.edu/~jzthree/datasets/ICML2014/cullpdb+profile_6133_filtered.npy.gz"
-TEST_URL = "http://www.princeton.edu/~jzthree/datasets/ICML2014/cb513+profile_split1.npy.gz"
+TRAIN_URL = 'http://www.princeton.edu/~jzthree/datasets/ICML2014/cullpdb+profile_6133_filtered.npy.gz'
+TEST_URL = 'http://www.princeton.edu/~jzthree/datasets/ICML2014/cb513+profile_split1.npy.gz'
 
 
 def download_dataset():
@@ -41,7 +41,8 @@ def make_dataset(path):
     data = load_gz(path)
     data = data.reshape(-1, 700, 57)
 
-    idx = np.append(np.arange(21), np.arange(35, 56))
+    #idx = np.append(np.arange(21), np.arange(35, 56))
+    idx = np.arange(21)
     X = data[:, :, idx]
     X = X.transpose(0, 2, 1)
     X = X.astype('float32')

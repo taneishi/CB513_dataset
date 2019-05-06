@@ -79,8 +79,8 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
 
         # forward
         optimizer.zero_grad()
-        # pred = model(src_seq, src_pos, tgt_seq, tgt_pos)
-        pred = model(src_seq, src_sp, src_pos, tgt_seq, tgt_pos)
+        pred = model(src_seq, src_pos, tgt_seq, tgt_pos)
+        # pred = model(src_seq, src_sp, src_pos, tgt_seq, tgt_pos)
 
         # backward
         loss, n_correct = cal_performance(pred, gold, smoothing=smoothing)
@@ -119,8 +119,8 @@ def eval_epoch(model, validation_data, device):
             gold = tgt_seq[:, 1:]
 
             # forward
-            # pred = model(src_seq, src_pos, tgt_seq, tgt_pos)
-            pred = model(src_seq, src_sp, src_pos, tgt_seq, tgt_pos)
+            pred = model(src_seq, src_pos, tgt_seq, tgt_pos)
+            #pred = model(src_seq, src_sp, src_pos, tgt_seq, tgt_pos)
             loss, n_correct = cal_performance(pred, gold, smoothing=False)
 
             # note keeping
@@ -236,7 +236,8 @@ def main():
             'The src/tgt word2idx table are different but asked to share word embedding.'
 
     device = torch.device('cuda' if opt.cuda else 'cpu')
-    torch.cuda.set_device(1)
+    if torch.cuda.is_available():
+        torch.cuda.set_device(1)
     transformer = Transformer(
         opt.src_vocab_size,
         opt.tgt_vocab_size,

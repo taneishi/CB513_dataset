@@ -14,8 +14,8 @@ from utils import *
 # params
 # ----------
 parser = argparse.ArgumentParser(description='Protein Secondary Structure Prediction')
-parser.add_argument('-e', '--epochs', type=int, default=1000,
-                    help='The number of epochs to run (default: 1000)')
+parser.add_argument('-e', '--epochs', type=int, default=100,
+                    help='The number of epochs to run (default: 100)')
 parser.add_argument('-b', '--batch_size_train', type=int, default=128,
                     help='input batch size for training (default: 128)')
 parser.add_argument('-b_test', '--batch_size_test', type=int, default=1024,
@@ -68,7 +68,7 @@ def test(model, device, test_loader, loss_function):
 def main():
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     torch.manual_seed(args.seed)
-    device = torch.device("cuda" if use_cuda else "cpu")
+    device = torch.device('cuda' if use_cuda else 'cpu')
 
     # make directory to save train history and model
     os.makedirs(args.result_dir, exist_ok=True)
@@ -80,6 +80,10 @@ def main():
 
     # model, loss_function, optimizer
     model = Net().to(device)
+    
+    if torch.cuda.is_available():
+        model = torch.nn.DataParallel(model)
+
     loss_function = CrossEntropy()
     optimizer = torch.optim.Adam(model.parameters(), weight_decay=0.01)
 

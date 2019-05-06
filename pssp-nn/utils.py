@@ -28,10 +28,10 @@ class CrossEntropy(object):
 #         self.loss = nn.CrossEntropyLoss()
 #
 #     def __call__(self, out, target, seq_len):
-#         """
+#         '''
 #         out.shape : (batch_size, class_num, seq_len)
 #         target.shape : (batch_size, seq_len)
-#         """
+#         '''
 #         out = torch.clamp(out, 1e-15, 1 - 1e-15)
 #         return torch.tensor([self.loss(o[:l], t[:l])
 #                              for o, t, l in zip(out, target, seq_len)],
@@ -51,11 +51,11 @@ def args2json(data, path, print_args=True):
 
 
 def accuracy(out, target, seq_len):
-    """
+    '''
     out.shape : (batch_size, seq_len, class_num)
     target.shape : (class_num, seq_len)
     seq_len.shape : (batch_size)
-    """
+    '''
     out = out.cpu().data.numpy()
     target = target.cpu().data.numpy()
     seq_len = seq_len.cpu().data.numpy()
@@ -95,7 +95,7 @@ def acid_accuracy(out, target, seq_len):
 
 
 def load_gz(path): # load a .npy.gz file
-    if path.endswith(".gz"):
+    if path.endswith('.gz'):
         f = gzip.open(path, 'rb')
         return np.load(f)
     else:
@@ -103,7 +103,7 @@ def load_gz(path): # load a .npy.gz file
 
 
 def timestamp():
-    return time.strftime("%Y%m%d%H%M", time.localtime())
+    return time.strftime('%Y%m%d%H%M', time.localtime())
 
 
 def show_progress(e, e_total, train_loss, test_loss, acc):
