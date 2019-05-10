@@ -17,6 +17,7 @@ from dataset import TranslationDataset, paired_collate_fn
 from transformer.Models import Transformer
 from transformer.Optim import ScheduledOptim
 from utils import args2json, save_model, save_history, show_progress
+import timeit
 
 
 def cal_performance(pred, gold, smoothing=False):
@@ -65,11 +66,13 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
     n_word_total = 0
     n_word_correct = 0
 
+    now = timeit.default_timer()
+
     for batch in training_data:
 
         # prepare data
-        # src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
-        src_seq, src_sp, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
+        src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
+        #src_seq, src_sp, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
         # print('-----------')
         # print(f'src_seq : {src_seq.shape}')
         # print(f'src_pos : {src_pos.shape}')
@@ -97,6 +100,8 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
         n_word_total += n_word
         n_word_correct += n_correct
 
+    print(timeit.default_timer() - now)
+
     loss_per_word = total_loss/n_word_total
     accuracy = n_word_correct/n_word_total
     return loss_per_word, accuracy
@@ -114,8 +119,8 @@ def eval_epoch(model, validation_data, device):
         for batch in validation_data:
 
             # prepare data
-            # src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
-            src_seq, src_sp, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
+            src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
+            #src_seq, src_sp, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
             gold = tgt_seq[:, 1:]
 
             # forward
