@@ -71,8 +71,8 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
     for batch in training_data:
 
         # prepare data
-        src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
-        #src_seq, src_sp, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
+        #src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
+        src_seq, src_sp, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
         # print('-----------')
         # print(f'src_seq : {src_seq.shape}')
         # print(f'src_pos : {src_pos.shape}')
@@ -119,8 +119,8 @@ def eval_epoch(model, validation_data, device):
         for batch in validation_data:
 
             # prepare data
-            src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
-            #src_seq, src_sp, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
+            #src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
+            src_seq, src_sp, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
             gold = tgt_seq[:, 1:]
 
             # forward
@@ -194,7 +194,7 @@ def main():
 
     parser.add_argument('-data', default='../pssp-data/dataset.pt')
 
-    parser.add_argument('-epoch', type=int, default=10)
+    parser.add_argument('-epoch', type=int, default=100)
     parser.add_argument('-batch_size', type=int, default=4)
 
     #parser.add_argument('-d_word_vec', type=int, default=512)
