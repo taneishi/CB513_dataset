@@ -240,9 +240,10 @@ def main():
         assert training_data.dataset.src_word2idx == training_data.dataset.tgt_word2idx, \
             'The src/tgt word2idx table are different but asked to share word embedding.'
 
-    device = torch.device('cuda' if opt.cuda else 'cpu')
+    device = torch.device('cuda' if (opt.cuda and torch.cuda.is_available()) else 'cpu')
     if torch.cuda.is_available():
         torch.cuda.set_device(0)
+
     transformer = Transformer(
         opt.src_vocab_size,
         opt.tgt_vocab_size,
