@@ -79,11 +79,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-train_src', default='../pssp-data/aa_train.txt')
     parser.add_argument('-train_tgt', default='../pssp-data/pss_train.txt')
-    #parser.add_argument('-train_sp', default='../pssp-data/sp_train.pkl')
 
     parser.add_argument('-valid_src', default='../pssp-data/aa_test.txt')
     parser.add_argument('-valid_tgt', default='../pssp-data/pss_test.txt')
-    #parser.add_argument('-valid_sp', default='../pssp-data/sp_test.pkl')
 
     parser.add_argument('-save_data', default='../pssp-data/dataset.pt')
     #parser.add_argument('-max_len', '--max_word_seq_len', type=int, default=700)
@@ -163,10 +161,6 @@ def main():
     train_tgt_insts = convert_instance_to_idx_seq(train_tgt_word_insts, tgt_word2idx)
     valid_tgt_insts = convert_instance_to_idx_seq(valid_tgt_word_insts, tgt_word2idx)
 
-    # read sequences profile
-    #train_seq_profile = load_picke_data(opt.train_sp)
-    #valid_seq_profile = load_picke_data(opt.valid_sp)
-
     data = {
         'settings': opt,
         'dict': {
@@ -174,11 +168,9 @@ def main():
             'tgt': tgt_word2idx},
         'train': {
             'src': train_src_insts,
-            #'sp' : train_seq_profile,
             'tgt': train_tgt_insts},
         'valid': {
             'src': valid_src_insts,
-            #'sp' : valid_seq_profile,
             'tgt': valid_tgt_insts}}
 
     print('[Info] Dumping the processed data to pickle file', opt.save_data)

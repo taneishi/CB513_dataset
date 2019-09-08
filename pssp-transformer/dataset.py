@@ -5,22 +5,16 @@ import torch.utils.data
 from transformer import Constants
 
 def paired_collate_fn(insts):
-    #src_insts, tgt_insts, sp_insts = list(zip(*insts))
     src_insts, tgt_insts = list(zip(*insts))
     # print(src_insts)
-    # print(np.array(sp_insts[0]).shape)
 
-    #src_insts = collate_fn_x(src_insts, sp_insts)
     src_insts = collate_fn_x(src_insts)
     # src_insts = collate_fn(src_insts)
     tgt_insts = collate_fn(tgt_insts)
-    # sp_insts = collate_fn_ones(sp_insts)
-    # print(sp_insts[0].shape)
 
     return (*src_insts, *tgt_insts)
 
 
-#def collate_fn_x(insts, sp_insts):
 def collate_fn_x(insts):
     ''' Pad the instance to the max seq length in batch '''
 
@@ -31,22 +25,13 @@ def collate_fn_x(insts):
         inst + [Constants.PAD] * (max_len - len(inst))
         for inst in insts])
 
-    '''
-    batch_sp = np.array([[
-        inst.tolist() + [Constants.PAD] * (max_len - len(inst))
-        for inst in sp]
-        for sp in sp_insts])
-    '''
-
     batch_pos = np.array([
         [pos_i+1 if w_i != Constants.PAD else 0
          for pos_i, w_i in enumerate(inst)] for inst in batch_seq])
 
     batch_seq = torch.LongTensor(batch_seq)
-    #batch_sp = torch.FloatTensor(batch_sp)
     batch_pos = torch.LongTensor(batch_pos)
 
-    #return batch_seq, batch_sp, batch_pos
     return batch_seq, batch_pos
 
 
@@ -73,7 +58,6 @@ def collate_fn(insts):
 class TranslationDataset(torch.utils.data.Dataset):
     def __init__(
         self, src_word2idx, tgt_word2idx,
-        #src_insts=None, tgt_insts=None, sp_insts=None):
         src_insts=None, tgt_insts=None):
 
         assert src_insts
@@ -88,8 +72,6 @@ class TranslationDataset(torch.utils.data.Dataset):
         self._tgt_word2idx = tgt_word2idx
         self._tgt_idx2word = tgt_idx2word
         self._tgt_insts = tgt_insts
-
-        #self.sp_insts = sp_insts
 
     @property
     def n_insts(self):

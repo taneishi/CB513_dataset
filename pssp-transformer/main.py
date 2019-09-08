@@ -71,8 +71,6 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
     for batch in training_data:
 
         # prepare data
-        #src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
-        #src_seq, src_sp, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
         src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
         # print('-----------')
         # print(f'src_seq : {src_seq.shape}')
@@ -84,7 +82,6 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
         # forward
         optimizer.zero_grad()
         pred = model(src_seq, src_pos, tgt_seq, tgt_pos)
-        # pred = model(src_seq, src_sp, src_pos, tgt_seq, tgt_pos)
 
         # backward
         loss, n_correct = cal_performance(pred, gold, smoothing=smoothing)
@@ -122,12 +119,10 @@ def eval_epoch(model, validation_data, device):
 
             # prepare data
             src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
-            #src_seq, src_sp, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
             gold = tgt_seq[:, 1:]
 
             # forward
             pred = model(src_seq, src_pos, tgt_seq, tgt_pos)
-            #pred = model(src_seq, src_sp, src_pos, tgt_seq, tgt_pos)
             loss, n_correct = cal_performance(pred, gold, smoothing=False)
 
             # note keeping
@@ -279,7 +274,6 @@ def prepare_dataloaders(data, opt):
             tgt_word2idx=data['dict']['tgt'],
             src_insts=data['train']['src'],
             tgt_insts=data['train']['tgt']),
-            #sp_insts=data['train']['sp']),
         num_workers=2,
         batch_size=opt.batch_size,
         collate_fn=paired_collate_fn,
@@ -291,7 +285,6 @@ def prepare_dataloaders(data, opt):
             tgt_word2idx=data['dict']['tgt'],
             src_insts=data['valid']['src'],
             tgt_insts=data['valid']['tgt']),
-            #sp_insts=data['valid']['sp']),
         num_workers=2,
         batch_size=opt.batch_size,
         collate_fn=paired_collate_fn)
