@@ -1,8 +1,10 @@
-# -*- coding: utf-8 -*-
 import torch
 from torch import nn
 from torch.autograd import Variable
 import torch.nn.functional as F
+
+N_STATE = 3
+N_AA = 20
 
 class Net(nn.Module):
     def __init__(self):
@@ -11,15 +13,15 @@ class Net(nn.Module):
         # Conv1d(in_channels, out_channels, kernel_size, stride, padding)
         conv_hidden_size = 64
         self.conv1 = nn.Sequential(
-            nn.Conv1d(21, conv_hidden_size, 3, 1, 3 // 2),
+            nn.Conv1d(N_AA, conv_hidden_size, 3, 1, 3 // 2),
             nn.ReLU())
 
         self.conv2 = nn.Sequential(
-            nn.Conv1d(21, conv_hidden_size, 7, 1, 7 // 2),
+            nn.Conv1d(N_AA, conv_hidden_size, 7, 1, 7 // 2),
             nn.ReLU())
 
         self.conv3 = nn.Sequential(
-            nn.Conv1d(21, conv_hidden_size, 11, 1, 11 // 2),
+            nn.Conv1d(N_AA, conv_hidden_size, 11, 1, 11 // 2),
             nn.ReLU())
 
         # LSTM(input_size, hidden_size, num_layers, bias,
@@ -30,7 +32,7 @@ class Net(nn.Module):
         self.fc = nn.Sequential(
                 nn.Linear(rnn_hidden_size*2+conv_hidden_size*3, 126),
                 nn.ReLU(),
-                nn.Linear(126, 8),
+                nn.Linear(126, N_STATE),
                 nn.ReLU())
 
     def forward(self, x):

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 import time
 import json
@@ -9,6 +7,7 @@ import collections
 import torch
 from torch import nn
 
+N_STATE = 3
 
 class CrossEntropy(object):
 
@@ -78,8 +77,8 @@ def acid_accuracy(out, target, seq_len):
 
     out = out.argmax(axis=2)
 
-    count_1 = np.zeros(8)
-    count_2 = np.zeros(8)
+    count_1 = np.zeros(N_STATE)
+    count_2 = np.zeros(N_STATE)
     for o, t, l in zip(out, target, seq_len):
         o, t = o[:l], t[:l]
 
@@ -91,7 +90,7 @@ def acid_accuracy(out, target, seq_len):
         keys, values = amino_count(t[np.equal(o, t)])
         count_2[keys] += values
 
-    return np.divide(count_2, count_1, out=np.zeros(8), where=count_1!=0)
+    return np.divide(count_2, count_1, out=np.zeros(N_STATE), where=count_1!=0)
 
 
 def load_gz(path): # load a .npy.gz file

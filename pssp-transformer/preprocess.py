@@ -79,14 +79,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-train_src', default='../pssp-data/aa_train.txt')
     parser.add_argument('-train_tgt', default='../pssp-data/pss_train.txt')
-    parser.add_argument('-train_sp', default='../pssp-data/sp_train.pkl')
+    #parser.add_argument('-train_sp', default='../pssp-data/sp_train.pkl')
 
     parser.add_argument('-valid_src', default='../pssp-data/aa_test.txt')
     parser.add_argument('-valid_tgt', default='../pssp-data/pss_test.txt')
-    parser.add_argument('-valid_sp', default='../pssp-data/sp_test.pkl')
+    #parser.add_argument('-valid_sp', default='../pssp-data/sp_test.pkl')
 
     parser.add_argument('-save_data', default='../pssp-data/dataset.pt')
-    parser.add_argument('-max_len', '--max_word_seq_len', type=int, default=700)
+    #parser.add_argument('-max_len', '--max_word_seq_len', type=int, default=700)
+    parser.add_argument('-max_len', '--max_word_seq_len', type=int, default=23)
     parser.add_argument('-min_word_count', type=int, default=5)
     parser.add_argument('-keep_case', action='store_true')
     parser.add_argument('-share_vocab', action='store_true')
@@ -95,9 +96,11 @@ def main():
     opt = parser.parse_args()
     opt.max_token_seq_len = opt.max_word_seq_len + 2 # include the <s> and </s>
 
+    '''
     if not os.path.isfile(opt.save_data):
         download_dataset()
         make_datasets()
+    '''
 
     # Training set
     train_src_word_insts = read_instances_from_file(
@@ -161,8 +164,8 @@ def main():
     valid_tgt_insts = convert_instance_to_idx_seq(valid_tgt_word_insts, tgt_word2idx)
 
     # read sequences profile
-    train_seq_profile = load_picke_data(opt.train_sp)
-    valid_seq_profile = load_picke_data(opt.valid_sp)
+    #train_seq_profile = load_picke_data(opt.train_sp)
+    #valid_seq_profile = load_picke_data(opt.valid_sp)
 
     data = {
         'settings': opt,
@@ -171,11 +174,11 @@ def main():
             'tgt': tgt_word2idx},
         'train': {
             'src': train_src_insts,
-            'sp' : train_seq_profile,
+            #'sp' : train_seq_profile,
             'tgt': train_tgt_insts},
         'valid': {
             'src': valid_src_insts,
-            'sp' : valid_seq_profile,
+            #'sp' : valid_seq_profile,
             'tgt': valid_tgt_insts}}
 
     print('[Info] Dumping the processed data to pickle file', opt.save_data)

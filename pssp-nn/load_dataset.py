@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
@@ -33,15 +32,15 @@ class LoadDataset(object):
 
     def load_dataset(self):
         if not(os.path.isfile(self.train_path) and os.path.isfile(self.test_path)):
-            download_dataset()
+            #download_dataset()
             make_datasets()
 
         # train dataset
-        train_data = np.load(self.train_path)
+        train_data = np.load(self.train_path, allow_pickle=True)
         X_train, y_train, seq_len_train = train_data['X'], train_data['y'], train_data['seq_len']
 
         # test dataset
-        test_data = np.load(self.test_path)
+        test_data = np.load(self.test_path, allow_pickle=True)
         X_test, y_test, seq_len_test = test_data['X'], test_data['y'], test_data['seq_len']
 
         return X_train, y_train, seq_len_train, X_test, y_test, seq_len_test

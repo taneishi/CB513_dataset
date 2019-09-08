@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os, sys
 sys.path.append(os.pardir)
 import numpy as np
@@ -24,8 +22,8 @@ parser.add_argument('--data_dir', type=str, default='../pssp-data',
                     help='Dataset directory (default: ../pssp-data)')
 parser.add_argument('--result_dir', type=str, default='./result',
                     help='Output directory (default: ./result)')
-parser.add_argument('--no_cuda', action='store_true', default=False,
-                    help='disables CUDA training')
+parser.add_argument('--cuda', action='store_true', default=True,
+                    help='enable CUDA training')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 args = parser.parse_args()
@@ -66,7 +64,7 @@ def test(model, device, test_loader, loss_function):
 
 
 def main():
-    use_cuda = not args.no_cuda and torch.cuda.is_available()
+    use_cuda = args.cuda and torch.cuda.is_available()
     torch.manual_seed(args.seed)
     device = torch.device('cuda' if use_cuda else 'cpu')
 

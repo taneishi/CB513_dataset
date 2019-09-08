@@ -72,7 +72,8 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
 
         # prepare data
         #src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
-        src_seq, src_sp, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
+        #src_seq, src_sp, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
+        src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
         # print('-----------')
         # print(f'src_seq : {src_seq.shape}')
         # print(f'src_pos : {src_pos.shape}')
@@ -103,6 +104,7 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
     print(timeit.default_timer() - now)
 
     loss_per_word = total_loss/n_word_total
+    print(n_word_correct, n_word_total)
     accuracy = n_word_correct/n_word_total
     return loss_per_word, accuracy
 
@@ -119,8 +121,8 @@ def eval_epoch(model, validation_data, device):
         for batch in validation_data:
 
             # prepare data
-            #src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
-            src_seq, src_sp, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
+            src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
+            #src_seq, src_sp, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
             gold = tgt_seq[:, 1:]
 
             # forward
@@ -216,11 +218,10 @@ def main():
     # parser.add_argument('-save_model', type=str, default='model')
     # parser.add_argument('-save_mode', type=str, choices=['all', 'best'], default='best')
 
-    parser.add_argument('-no_cuda', action='store_true')
+    parser.add_argument('-cuda', action='store_true', default=True)
     parser.add_argument('-label_smoothing', action='store_true')
 
     opt = parser.parse_args()
-    opt.cuda = not opt.no_cuda
     opt.d_word_vec = opt.d_model
 
     os.makedirs(opt.result_dir, exist_ok=True)
@@ -243,6 +244,8 @@ def main():
     device = torch.device('cuda' if (opt.cuda and torch.cuda.is_available()) else 'cpu')
     if torch.cuda.is_available():
         torch.cuda.set_device(0)
+
+    print(opt)
 
     transformer = Transformer(
         opt.src_vocab_size,
@@ -275,8 +278,8 @@ def prepare_dataloaders(data, opt):
             src_word2idx=data['dict']['src'],
             tgt_word2idx=data['dict']['tgt'],
             src_insts=data['train']['src'],
-            tgt_insts=data['train']['tgt'],
-            sp_insts=data['train']['sp']),
+            tgt_insts=data['train']['tgt']),
+            #sp_insts=data['train']['sp']),
         num_workers=2,
         batch_size=opt.batch_size,
         collate_fn=paired_collate_fn,
@@ -287,8 +290,8 @@ def prepare_dataloaders(data, opt):
             src_word2idx=data['dict']['src'],
             tgt_word2idx=data['dict']['tgt'],
             src_insts=data['valid']['src'],
-            tgt_insts=data['valid']['tgt'],
-            sp_insts=data['valid']['sp']),
+            tgt_insts=data['valid']['tgt']),
+            #sp_insts=data['valid']['sp']),
         num_workers=2,
         batch_size=opt.batch_size,
         collate_fn=paired_collate_fn)
