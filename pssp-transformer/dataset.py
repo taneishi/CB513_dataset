@@ -113,5 +113,5 @@ class TranslationDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         if self._tgt_insts:
-            return self._src_insts[idx], self._tgt_insts[idx] #, self.sp_insts[idx]
+            return self._src_insts[idx], self._tgt_insts[idx]
         return self._src_insts[idx]
