@@ -19,6 +19,8 @@ from transformer.Optim import ScheduledOptim
 from utils import args2json, save_model, save_history, show_progress
 import timeit
 
+def toseq(tensor):
+    return ''.join(map(str, tensor.tolist()))
 
 def cal_performance(pred, gold, smoothing=False):
     ''' Apply label smoothing if needed '''
@@ -28,11 +30,11 @@ def cal_performance(pred, gold, smoothing=False):
     pred = pred.max(1)[1]
     gold = gold.contiguous().view(-1)
     non_pad_mask = gold.ne(Constants.PAD)
+    #print(toseq(gold), toseq(pred))
     n_correct = pred.eq(gold)
     n_correct = n_correct.masked_select(non_pad_mask).sum().item()
 
     return loss, n_correct
-
 
 def cal_loss(pred, gold, smoothing):
     ''' Calculate cross entropy loss, apply label smoothing if needed. '''
@@ -55,7 +57,6 @@ def cal_loss(pred, gold, smoothing):
         loss = F.cross_entropy(pred, gold, ignore_index=Constants.PAD, reduction='sum')
 
     return loss
-
 
 def train_epoch(model, training_data, optimizer, device, smoothing):
     ''' Epoch operation in training phase'''
@@ -101,7 +102,6 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
     print(timeit.default_timer() - now)
 
     loss_per_word = total_loss/n_word_total
-    print(n_word_correct, n_word_total)
     accuracy = n_word_correct/n_word_total
     return loss_per_word, accuracy
 
@@ -136,8 +136,6 @@ def eval_epoch(model, validation_data, device):
     loss_per_word = total_loss/n_word_total
     accuracy = n_word_correct/n_word_total
     return loss_per_word, accuracy
-
-
 
 def train(model, training_data, validation_data, optimizer, device, opt):
     ''' Start training '''
@@ -213,7 +211,7 @@ def main():
     # parser.add_argument('-save_model', type=str, default='model')
     # parser.add_argument('-save_mode', type=str, choices=['all', 'best'], default='best')
 
-    parser.add_argument('-cuda', action='store_true', default=True)
+    parser.add_argument('-cuda', action='store_true', default=False)
     parser.add_argument('-label_smoothing', action='store_true')
 
     opt = parser.parse_args()
@@ -236,9 +234,11 @@ def main():
         assert training_data.dataset.src_word2idx == training_data.dataset.tgt_word2idx, \
             'The src/tgt word2idx table are different but asked to share word embedding.'
 
-    device = torch.device('cuda' if (opt.cuda and torch.cuda.is_available()) else 'cpu')
-    if torch.cuda.is_available():
+    if opt.cuda and torch.cuda.is_available():
+        device = torch.device('cuda')
         torch.cuda.set_device(0)
+    else:
+        device = torch.device('cpu')
 
     print(opt)
 
@@ -265,7 +265,6 @@ def main():
 
     train(transformer, training_data, validation_data, optimizer, device ,opt)
 
-
 def prepare_dataloaders(data, opt):
     # ========= Preparing DataLoader =========#
     train_loader = torch.utils.data.DataLoader(
@@ -289,7 +288,6 @@ def prepare_dataloaders(data, opt):
         batch_size=opt.batch_size,
         collate_fn=paired_collate_fn)
     return train_loader, valid_loader
-
 
 if __name__ == '__main__':
     main()
