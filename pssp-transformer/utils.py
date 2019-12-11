@@ -73,9 +73,9 @@ def load_gz(path): # load a .npy.gz file
 def timestamp():
     return time.strftime("%Y%m%d%H%M", time.localtime())
 
-def show_progress(e, e_total, train_loss, test_loss, acc):
+def show_progress(e, e_total, train_loss, test_loss, train_acc, acc):
     print(f'[{e:3d}/{e_total:3d}] train_loss:{train_loss:.2f}, '\
-          f'test_loss:{test_loss:.2f}, acc:{acc:.3f}')
+          f'test_loss:{test_loss:.2f}, train_acc:{train_acc:.3f}, acc:{acc:.3f}')
 
 
 def save_history(history, save_dir):

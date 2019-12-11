@@ -1,13 +1,3 @@
-'''
-This script handling the training process.
-'''
-
-import os
-import argparse
-import math
-import time
-
-from tqdm import tqdm
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
@@ -17,7 +7,12 @@ from dataset import TranslationDataset, paired_collate_fn
 from transformer.Models import Transformer
 from transformer.Optim import ScheduledOptim
 from utils import args2json, save_model, save_history, show_progress
+from tqdm import tqdm
+import argparse
+import math
+import time
 import timeit
+import os
 
 def toseq(tensor):
     return ''.join(map(str, tensor.tolist()))
@@ -30,7 +25,6 @@ def cal_performance(pred, gold, smoothing=False):
     pred = pred.max(1)[1]
     gold = gold.contiguous().view(-1)
     non_pad_mask = gold.ne(Constants.PAD)
-    #print(toseq(gold), toseq(pred))
     n_correct = pred.eq(gold)
     n_correct = n_correct.masked_select(non_pad_mask).sum().item()
 
@@ -163,7 +157,7 @@ def train(model, training_data, validation_data, optimizer, device, opt):
 
         valid_loss, valid_accu = eval_epoch(model, validation_data, device)
 
-        history.append([train_loss, valid_loss, valid_accu])
+        history.append([train_loss, train_accu, valid_loss, valid_accu])
         valid_accus += [valid_accu]
 
         if valid_accu >= max(valid_accus):
@@ -179,7 +173,7 @@ def train(model, training_data, validation_data, optimizer, device, opt):
                     epoch=e, loss=valid_loss,
                     ppl=math.exp(min(valid_loss, 100)), accu=100*valid_accu))
 
-        show_progress(e+1, opt.epoch, train_loss, valid_loss, valid_accu)
+        show_progress(e+1, opt.epoch, train_loss, valid_loss, train_accu, valid_accu)
 
     save_history(history, opt.result_dir)
 
@@ -190,7 +184,7 @@ def main():
     parser.add_argument('-data', default='../pssp-data/dataset.pt')
 
     parser.add_argument('-epoch', type=int, default=100)
-    parser.add_argument('-batch_size', type=int, default=4)
+    parser.add_argument('-batch_size', type=int, default=4*5)
 
     #parser.add_argument('-d_word_vec', type=int, default=512)
     parser.add_argument('-d_model', type=int, default=256)
@@ -211,7 +205,7 @@ def main():
     # parser.add_argument('-save_model', type=str, default='model')
     # parser.add_argument('-save_mode', type=str, choices=['all', 'best'], default='best')
 
-    parser.add_argument('-cuda', action='store_true', default=False)
+    parser.add_argument('-cuda', action='store_true', default=True)
     parser.add_argument('-label_smoothing', action='store_true')
 
     opt = parser.parse_args()
