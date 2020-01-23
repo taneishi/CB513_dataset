@@ -12,8 +12,8 @@ N_STATE = 3
 N_AA = 20
 N_LEN = 23
 
-TRAIN_PATH = '../pssp-data/aa_train.txt'
-TEST_PATH = '../pssp-data/aa_test.txt'
+TRAIN_PATH = '../../helix/csv/aa_train.txt'
+TEST_PATH = '../../helix/csv/aa_test.txt'
 
 class CrossEntropy(object):
     def __init__(self):

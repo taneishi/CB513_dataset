@@ -76,11 +76,12 @@ def main():
     ''' Main function '''
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-train_src', default='../pssp-data/aa_train.txt')
-    parser.add_argument('-train_tgt', default='../pssp-data/pss_train.txt')
+    parser.add_argument('-data_dir', default='../../helix/csv')
+    parser.add_argument('-train_src', default='aa_train.txt')
+    parser.add_argument('-train_tgt', default='pss_train.txt')
 
-    parser.add_argument('-valid_src', default='../pssp-data/aa_test.txt')
-    parser.add_argument('-valid_tgt', default='../pssp-data/pss_test.txt')
+    parser.add_argument('-valid_src', default='aa_test.txt')
+    parser.add_argument('-valid_tgt', default='pss_test.txt')
 
     parser.add_argument('-save_data', default='../pssp-data/dataset.pt')
     #parser.add_argument('-max_len', '--max_word_seq_len', type=int, default=700)
@@ -95,9 +96,9 @@ def main():
 
     # Training set
     train_src_word_insts = read_instances_from_file(
-        opt.train_src, opt.max_word_seq_len, opt.keep_case)
+        os.path.join(opt.data_dir, opt.train_src), opt.max_word_seq_len, opt.keep_case)
     train_tgt_word_insts = read_instances_from_file(
-        opt.train_tgt, opt.max_word_seq_len, opt.keep_case)
+        os.path.join(opt.data_dir, opt.train_tgt), opt.max_word_seq_len, opt.keep_case)
 
     if len(train_src_word_insts) != len(train_tgt_word_insts):
         print('[Warning] The training instance count is not equal.')
@@ -111,9 +112,9 @@ def main():
 
     # Validation set
     valid_src_word_insts = read_instances_from_file(
-        opt.valid_src, opt.max_word_seq_len, opt.keep_case)
+        os.path.join(opt.data_dir, opt.valid_src), opt.max_word_seq_len, opt.keep_case)
     valid_tgt_word_insts = read_instances_from_file(
-        opt.valid_tgt, opt.max_word_seq_len, opt.keep_case)
+        os.path.join(opt.data_dir, opt.valid_tgt), opt.max_word_seq_len, opt.keep_case)
 
     if len(valid_src_word_insts) != len(valid_tgt_word_insts):
         print('[Warning] The validation instance count is not equal.')
