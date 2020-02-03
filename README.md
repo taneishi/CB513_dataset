@@ -1,43 +1,50 @@
-# protein-secondary-structure-prediction
+# Datasets for Protein Secondary Structure Prediction
 
-PyTorch implementations of protein secondary structure prediction on CB513.
+## Introduction
 
-I implemented them based on https://github.com/alrojo/CB513 and https://github.com/jadore801120/attention-is-all-you-need-pytorch.
+Protein secondary structure prediction datasets, CullPDB5926 and CB513, and the simple implementation in PyTorch.
 
+## Datasets
 
-# Dataset
-I used CB513 dataset of https://github.com/alrojo/CB513.
+Here, we introduce the datasets for protein secondary structure prediction used in the paper at ICML 2014[^ICML2014].
 
-|sequence length (train)|sequence length (test)|
-|:-:|:-:|
-|![](https://github.com/takatex/protein-secondary-structure-prediction/blob/master/pssp-data/seqlen_train.png)|![](https://github.com/takatex/protein-secondary-structure-prediction/blob/master/pssp-data/seqlen_test.png)|
+As described in the paper two datasets are used. Both are based on protein structures from CullPDB servers. The difference is that the first one is divided to training/validation/test set, while the second one is filtered to remove redundancy with CB513 dataset (for the purpose of testing performance on CB513 dataset).
 
-|amino acid (train)|amino acid (test)|
-|:-:|:-:|
-|![](https://github.com/takatex/protein-secondary-structure-prediction/blob/master/pssp-data/amino_acid_train.png)|![](https://github.com/takatex/protein-secondary-structure-prediction/blob/master/pssp-data/amino_acid_test.png)|
+`cullpdb+profile_5926_filtered.npy.gz` is the one with training/validation/test set division, after filtering for redundancy with CB513. this is used for evaluation on CB513.
 
-|secondary structure label(train)|secondary structure label (test)|
-|:-:|:-:|
-|![](https://github.com/takatex/protein-secondary-structure-prediction/blob/master/pssp-data/secondary_structure_train.png)|![](https://github.com/takatex/protein-secondary-structure-prediction/blob/master/pssp-data/secondary_structure_test.png)|
+`cb513+profile_split1.npy.gz` is the CB513 including protein features. Note that one of the sequences in CB513 is longer than 700 amino acids, and it is splited to two overlapping sequences and these are the last two samples (i.e. there are 514 rows instead of 513).
 
+It is currently in numpy format as a (N protein x k features) matrix. You can reshape it to (N protein x 700 amino acids x 57 features) first.
 
-# Usage
-You can get more infomations by adding `-h` option.
+The 57 features are:
+- `[0,22)`: amino acid residues, with the order of 'A', 'C', 'E', 'D', 'G', 'F', 'I', 'H', 'K', 'M', 'L', 'N', 'Q', 'P', 'S', 'R', 'T', 'W', 'V', 'Y', 'X', 'NoSeq'
+- `[22,31)`: Secondary structure labels, with the sequence of 'L', 'B', 'E', 'G', 'I', 'H', 'S', 'T', 'NoSeq'
+- `[31,33)`: N- and C- terminals;
+- `[33,35)`: Relative and absolute solvent accessibility, used only for training. (absolute accessibility is thresholded at 15; relative accessibility is normalized by the largest accessibility value in a protein and thresholded at 0.15; original solvent accessibility is computed by DSSP)
+- `[35,57)`: Sequence profile. Note the order of amino acid residues is ACDEFGHIKLMNPQRSTVWXY and it is different from the order for amino acid residues
 
-## pssp-nn
-```
-python main.py
-```
+The last feature of both amino acid residues and secondary structure labels just mark end of the protein sequence.
+`[22,31)` and `[33,35)` are hidden during testing.
 
-## pssp-transformer
-```
-python preprocess.py
-python main.py
-```
+The `cullpdb+profile_5926_filtered.npy.gz` file are removed duplicates from the original `cullpdb+profile_6133_filtered.npy.gz` file, updated 2018-10-28.
 
+The dataset division for the `cullpdb+profile_5926.npy.gz` file is
 
-# Acknowledgement
-- https://github.com/alrojo/CB513 
-- https://github.com/jadore801120/attention-is-all-you-need-pytorch
-- [Li, Zhen; Yu, Yizhou, Protein Secondary Structure Prediction Using Cascaded Convolutional and Recurrent Neural Networks, 2016.](https://arxiv.org/pdf/1604.07176.pdf)
-- [Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin, Attention Is All You Need](https://arxiv.org/abs/1706.03762)
+- `[0,5430)` training
+- `[5435,5690)` test
+- `[5690,5926)` validation
+
+For the filtered dataset `cullpdb+profile_5926_filtered.npy.gz`, all proteins can be used for training and test on CB513 dataset.
+
+![Sequence length](figure/seq_len.png)
+**Sequence length.**
+
+![Amino acid residues](figure/amino_acid.png)
+**Amino acid residues.**
+
+![Secondary structures](figure/ss.png)
+**Secondary structures.**
+
+[^ICML2014]: [*Deep supervised and convolutional generative stochastic network for protein secondary structure prediction*](http://www.princeton.edu/~jzthree/datasets/ICML2014/), **ICML**, 2014.
+[^GitHub]: [takatex/protein-secondary-structure-prediction](https://github.com/takatex/protein-secondary-structure-prediction)
+[^PaperWithCode]: [Protein Secondary Structure Prediction on CB513](https://paperswithcode.com/sota/protein-secondary-structure-prediction-on-1)
