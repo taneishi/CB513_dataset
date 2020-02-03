@@ -4,16 +4,17 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
+from make_dataset import download_dataset, make_dataset
 import argparse
 import json
 import os
 
-N_STATE = 3
-N_AA = 20
+N_STATE = 8
+N_AA = 21
 N_LEN = 23
 
-TRAIN_PATH = '../../helix/csv/aa_train.txt'
-TEST_PATH = '../../helix/csv/aa_test.txt'
+TRAIN_PATH = '../pssp-data/cullpdb+profile_6133_filtered.npy.gz'
+TEST_PATH = '../pssp-data/cb513+profile_split1.npy.gz'
 
 class CrossEntropy(object):
     def __init__(self):
@@ -64,8 +65,8 @@ def accuracy(out, target, seq_len):
     return np.array([np.equal(o[:l], t[:l]).sum()/l for o, t, l in zip(out, target, seq_len)]).mean()
 
 def show_progress(e, e_total, train_loss, test_loss, train_acc, acc):
-    print(f'[{e:3d}/{e_total:3d}] train_loss:{train_loss:.2f}, '\
-        f'test_loss:{test_loss:.2f}, train_acc:{train_acc:.3f} acc:{acc:.3f}')
+    print('[%3d/%3d] train_loss:%.2f, ' % (e, e_total, train_loss) +
+        'test_loss:%.2f, train_acc:%.3f acc:%.3f' % (test_loss, train_acc, acc))
 
 def save_history(history, save_dir):
     save_path = os.path.join(save_dir, 'history.npy')
@@ -74,31 +75,6 @@ def save_history(history, save_dir):
 def save_model(model, save_dir):
     save_path = os.path.join(save_dir, 'model.pth')
     torch.save(model.state_dict(), save_path)
-
-def make_dataset(path):
-    from sklearn.preprocessing import OneHotEncoder, LabelEncoder
-
-    data = pd.read_csv(path, header=None, sep=' ')
-
-    oe = OneHotEncoder(categories='auto', sparse=False)
-    X = oe.fit_transform(data)
-
-    X = np.resize(X, (data.shape[0], N_LEN, N_AA))
-    X = X.transpose(0, 2, 1)
-    X = X.astype('float32')
-
-    data = pd.read_csv(path.replace('aa', 'pss'), header=None, sep=' ')
-
-    le = LabelEncoder()
-    le.fit(data[0])
-    for col in data.columns:
-        data[col] = le.transform(data[col])
-    y = data.astype('float32').values
-
-    seq_len = [N_LEN] * data.shape[0]
-    seq_len = np.asarray(seq_len).astype('float32')
-
-    return X, y, seq_len
 
 class MyDataset(Dataset):
     def __init__(self, X, y, seq_len):
@@ -235,15 +211,13 @@ def main():
                         help='input batch size for testing (default: 1024)')
     parser.add_argument('--result_dir', type=str, default='./result',
                         help='Output directory (default: ./result)')
-    parser.add_argument('--cuda', action='store_true', default=True,
-                        help='enable CUDA training')
-    parser.add_argument('--seed', type=int, default=1, metavar='S',
-                        help='random seed (default: 1)')
     args = parser.parse_args()
 
-    use_cuda = args.cuda and torch.cuda.is_available()
-    torch.manual_seed(args.seed)
-    device = torch.device('cuda' if use_cuda else 'cpu')
+    if torch.cuda.is_available():
+        device = torch.device('cuda')
+    else:
+        device = torch.device('cpu')
+    print('Use %s device.' % device)
 
     # make directory to save train history and model
     os.makedirs(args.result_dir, exist_ok=True)
@@ -256,7 +230,7 @@ def main():
     # model, loss_function, optimizer
     model = Net().to(device)
     
-    if use_cuda:
+    if torch.cuda.device_count() > 1:
         model = torch.nn.DataParallel(model)
 
     loss_function = CrossEntropy()
@@ -275,4 +249,6 @@ def main():
     save_model(model, args.result_dir)
 
 if __name__ == '__main__':
+    torch.manual_seed(123)
+    download_dataset()
     main()
