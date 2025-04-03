@@ -5,7 +5,7 @@ import argparse
 AA = ['A', 'C', 'E', 'D', 'G', 'F', 'I', 'H', 'K', 'M', 'L', 'N', 'Q', 'P', 'S', 'R', 'T', 'W', 'V', 'Y', 'X', 'NoSeq']
 SS = ['L', 'B', 'E', 'G', 'I', 'H', 'S', 'T', 'NoSeq']
 
-def load(path):
+def data_load(path):
     data = np.load(f'data/{path}')
 
     # Original 57 features.
@@ -24,17 +24,17 @@ def load(path):
     mask = data[:, :, 30] * -1 + 1
     seq_len = mask.sum(axis=1)
     seq_len = seq_len.astype('int')
-    
+
     return X, y, seq_len
 
 def main(args):
-    train_X, train_y, train_seq_len = load(args.train_path)
-    test_X, test_y, test_seq_len = load(args.test_path)
-    
+    train_X, train_y, train_seq_len = data_load(args.train_path)
+    test_X, test_y, test_seq_len = data_load(args.test_path)
+
     # Sequence length.
     print(f'Training set {len(train_seq_len)} sequences.')
     print(f'Test set {len(test_seq_len)} sequences.')
-    
+
     # Amino acid residues.
     train_aa = []
     for seq, seq_len in zip(train_X, train_seq_len):
