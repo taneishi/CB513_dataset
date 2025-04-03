@@ -55,7 +55,7 @@ def main(args):
     model = ConvNet().to(device)
 
     if args.model_path and os.path.exists(args.model_path):
-        model.load_state_dict(torch.load(args.model_path))
+        model.load_state_dict(torch.load(args.model_path, weights_only=True))
 
     loss_function = CrossEntropy()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
@@ -63,6 +63,7 @@ def main(args):
     for epoch in range(args.epochs):
         epoch_start = timeit.default_timer()
 
+        print('epoch {:3d}/{:3d}'.format(epoch + 1, args.epochs), end='')
         model.train()
         train_loss = 0
         train_acc = 0
@@ -76,8 +77,7 @@ def main(args):
             loss.backward()
             optimizer.step()
 
-            print('\repoch {:3d}/{:3d} batch {:3d}/{:3d}'.format(epoch + 1, args.epochs, index, len(train_loader)), end='')
-            print(' train_loss {:5.3f} train_acc {:5.3f}'.format(train_loss / index, train_acc / index)), end='')
+        print(' train_loss {:5.3f} train_acc {:5.3f}'.format(train_loss / index, train_acc / index), end='')
 
         model.eval()
         test_loss = 0
@@ -90,11 +90,9 @@ def main(args):
             test_acc += accuracy(out, target, seq_len)
 
         print(' test_loss {:5.3f} test_acc {:5.3f}'.format(test_loss / len(test_loader), test_acc / len(test_loader)), end='')
-        print(' {:5.2f}sec'.format(timeit.default_timer() - epoch_start))
+        print(' {:5.1f}sec'.format(timeit.default_timer() - epoch_start))
 
-        torch.save(model.state_dict(), args.model_path)
-
-    print('')
+    torch.save(model.state_dict(), args.model_path)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Protein Secondary Structure Prediction')
